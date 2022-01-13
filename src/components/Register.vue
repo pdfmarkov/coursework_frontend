@@ -1,11 +1,6 @@
 <template>
   <div class="col-md-12">
     <div class="card card-container">
-<!--      <img-->
-<!--        id="profile-img"-->
-<!--        src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"-->
-<!--        class="profile-img-card"-->
-<!--      />-->
       <Form @submit="handleRegister" :validation-schema="schema">
         <div v-if="!successful">
           <div class="form-group">
@@ -82,7 +77,7 @@ export default {
   },
   mounted() {
     if (this.loggedIn) {
-      this.$router.push("/profile");
+      this.$router.push("/login");
     }
   },
   methods: {
@@ -90,6 +85,9 @@ export default {
       this.message = "";
       this.successful = false;
       this.loading = true;
+
+      // TODO: Убрать когда будет backend
+      this.$router.push("/login")
 
       this.$store.dispatch("auth/register", user).then(
         (data) => {

@@ -74,12 +74,15 @@ export default {
   },
   created() {
     if (this.loggedIn) {
-      this.$router.push("/profile");
+      this.$router.push("/home");
     }
   },
   methods: {
     handleLogin(user) {
       this.loading = true;
+
+      // TODO: Убрать когда будет backend
+      this.$router.push("/register/doctor")
 
       this.$store.dispatch("auth/login", user).then(
         () => {

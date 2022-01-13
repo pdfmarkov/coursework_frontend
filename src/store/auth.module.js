@@ -37,6 +37,18 @@ export const auth = {
         }
       );
     },
+    registerDoctor({commit}, user){
+      return AuthService.registerDoctor(user).then(
+          response => {
+            commit('registerSuccess');
+            return Promise.resolve(response.data);
+          },
+          error => {
+            commit('registerFailure');
+            return Promise.reject(error);
+          }
+      )
+    },
     refreshToken({ commit }, token) {
       commit('refreshToken', token);
     }

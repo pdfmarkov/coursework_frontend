@@ -1,18 +1,18 @@
 <template>
   <div id="app">
     <nav class="navbar navbar-expand navbar-dark bg-dark">
-      <a href="/" class="navbar-brand">TeamBuilder</a>
+      <a href="/" class="navbar-brand">Persona 5</a>
       <div class="navbar-nav mr-auto">
         <li class="nav-item">
           <router-link to="/home" class="nav-link">
-            <font-awesome-icon icon="list" /> Projects
+            <font-awesome-icon icon="list" /> Tables
           </router-link>
         </li>
-        <li class="nav-item">
-          <router-link v-if="currentUser" to="/add" class="nav-link">
-            <font-awesome-icon icon="plus" /> Add New Project
-          </router-link>
-        </li>
+<!--        <li class="nav-item">-->
+<!--          <router-link v-if="currentUser" to="/add" class="nav-link">-->
+<!--            <font-awesome-icon icon="plus" /> Add New Project-->
+<!--          </router-link>-->
+<!--        </li>-->
       </div>
 
       <div v-if="!currentUser" class="navbar-nav ml-auto">

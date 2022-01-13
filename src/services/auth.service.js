@@ -5,6 +5,8 @@ class AuthService {
   login({ username, password }) {
     console.log(username + ' : ' + password)
     return 0
+
+    // TODO: Исправить
     // return apiок
     //   .post("/auth/signin", {
     //     username,
@@ -27,6 +29,18 @@ class AuthService {
     return api.post("/auth/signup", {
       username,
       password
+    });
+  }
+
+  registerDoctor({name, surname, sex, race, gender, temperament, status}){
+    return api.put("/auth/savedoctor", {
+      name,
+      surname,
+      sex,
+      race,
+      gender,
+      temperament,
+      status
     });
   }
 }
