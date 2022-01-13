@@ -1,14 +1,14 @@
 <template>
   <div class="col-md-12">
     <div class="card card-container">
-      <img
-        id="profile-img"
-        src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
-        class="profile-img-card"
-      />
+<!--      <img-->
+<!--        id="profile-img"-->
+<!--        src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"-->
+<!--        class="profile-img-card"-->
+<!--      />-->
       <Form @submit="handleLogin" :validation-schema="schema">
         <div class="form-group">
-          <label for="username">Email</label>
+          <label for="username">Username</label>
           <Field name="username" type="email" class="form-control" />
           <ErrorMessage name="username" class="error-feedback" />
         </div>
@@ -56,8 +56,7 @@ export default {
       username:
           yup
               .string()
-              .required("Username is required!")
-              .email("Email is invalid!"),
+              .required("Username is required!"),
 
       password: yup.string().required("Password is required!"),
     });

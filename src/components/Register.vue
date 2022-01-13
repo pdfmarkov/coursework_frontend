@@ -1,15 +1,15 @@
 <template>
   <div class="col-md-12">
     <div class="card card-container">
-      <img
-        id="profile-img"
-        src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
-        class="profile-img-card"
-      />
+<!--      <img-->
+<!--        id="profile-img"-->
+<!--        src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"-->
+<!--        class="profile-img-card"-->
+<!--      />-->
       <Form @submit="handleRegister" :validation-schema="schema">
         <div v-if="!successful">
           <div class="form-group">
-            <label for="username">Email</label>
+            <label for="username">Username</label>
             <Field name="username" type="text" class="form-control"/>
             <ErrorMessage name="username" class="error-feedback" />
           </div>
@@ -58,8 +58,8 @@ export default {
       username: yup
         .string()
         .required("Email is required!")
-        .email("Email is invalid!")
-        .min(3, "Must be at least 3 characters!")
+        // .email("Email is invalid!")
+        .min(4, "Must be at least 4 characters!")
       ,
       password: yup
         .string()

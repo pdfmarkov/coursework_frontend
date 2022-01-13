@@ -3,18 +3,20 @@ import TokenService from "./token.service";
 
 class AuthService {
   login({ username, password }) {
-    return apiок
-      .post("/auth/signin", {
-        username,
-        password
-      })
-      .then((response) => {
-        if (response.data.token) {
-          TokenService.setUser(response.data);
-        }
-
-        return response.data;
-      });
+    console.log(username + ' : ' + password)
+    return 0
+    // return apiок
+    //   .post("/auth/signin", {
+    //     username,
+    //     password
+    //   })
+    //   .then((response) => {
+    //     if (response.data.token) {
+    //       TokenService.setUser(response.data);
+    //     }
+    //
+    //     return response.data;
+    //   });
   }
 
   logout() {
