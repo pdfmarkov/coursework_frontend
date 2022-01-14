@@ -6,66 +6,217 @@
   <div class="alert alert-danger" role="alert" v-if="content != null" style="margin: 1em">
     {{ content }}
   </div>
-  <div style="margin: 1em">
-    <div class="form-group">
-      <button
-          v-on:click="addTag(tag.tagName)"
-          type="button"
-          class="btn btn-warning"
-          v-for="tag in tags"
-          :key="tag"
-          style="margin: 0.1em">
-        {{ tag.tagName }}
-      </button>
-    </div>
-  </div>
-  <div style="margin: 1em">
-    <div class="form-group">
-      <button
-          v-on:click="addTag(tag)"
-          type="button"
-          class="btn btn-success"
-          v-for="tag in tagNameList"
-          :key="tag"
-          style="margin: 0.1em"
-      >
-        {{ tag }}
-      </button>
-    </div>
-  </div>
-  <div class="card text-center" style="margin: 1em" v-for="project in projects" :key="project.id">
-    <div class="card-header">
-      {{ project.leaderEmail }}
-    </div>
-    <div class="card-body">
-      <h5 class="card-title">{{ project.name }}</h5>
-      <p class="card-text">{{ project.description }}</p>
-      <a class="btn btn-primary" v-on:click="addUserToProject({'id': project.id})" v-if="this.$store.state.auth.user">Подать заявку</a>
-      <p class="card-text" style="margin-top: 1em" v-if="this.$store.state.auth.user">{{ project.answer }}</p>
-    </div>
-    <div class="card-footer text-white" v-if="project.tagNameList.length !== 0">
-      <span class="badge bg-success" v-for="tagName in project.tagNameList" :key="tagName" style="margin: 0.1em">
-        {{ tagName }}
-      </span>
-    </div>
 
-    <div class="card-footer text-muted">
-      Дедлайн: {{ formatDate(project.end_date) }}
-    </div>
+  <div class="table-responsive" style="margin: 1em" v-if="humans.length">
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th scope="col">
+            <a>#</a>
+          </th>
+          <th scope="col">
+            <a>Name</a>
+          </th>
+          <th scope="col">
+            <a>Surname</a>
+          </th>
+          <th scope="col">
+            <a>Location_id</a>
+          </th>
+          <th scope="col">
+            <a>is_real</a>
+          </th>
+          <th scope="col">
+            <a>is_doctor</a>
+          </th>
+          <th scope="col">
+            <a>Sex</a>
+          </th>
+          <th scope="col">
+            <a>Race</a>
+          </th>
+          <th scope="col">
+            <a>Gender</a>
+          </th>
+          <th scope="col">
+            <a>Temperament</a>
+          </th>
+          <th scope="col">
+            <a>Status</a>
+          </th>
+          <th scope="col">
+            <a>Birth_date</a>
+          </th>
+          <th scope="col">
+            <a>Death_date</a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <template v-for="human in humans" v-bind:key="human.id">
+          <tr @click="toggle(human.id)" :class="{opened : human.id in opened}">
+            <td>{{human.id}}</td>
+            <td class="left-border">{{human.name}}</td>
+            <td>{{human.surname}}</td>
+            <td class="left-border">{{human.location_id}}</td>
+            <td>{{human.is_real}}</td>
+            <td>{{human.is_doctor}}</td>
+            <td class="left-border">{{human.sex}}</td>
+            <td>{{human.race}}</td>
+            <td>{{human.gender}}</td>
+            <td class="left-border">{{human.temperament}}</td>
+            <td>{{human.status}}</td>
+            <td class="left-border">{{human.birth_date}}</td>
+            <td v-if="human.death_date != null">{{human.death_date}}</td>
+            <td v-else>-</td>
+          </tr>
+          <!--            ВЗАИМООТНОШЕНИЯ-->
+          <tr v-if="human.id in opened && human.relationship">
+            <td colspan="13">
+              <table class="table mb-0">
+                <thead>
+                  <tr><th @click="opened[human.id].relationship = !opened[human.id].relationship" colspan="5" scope="col" class="table-name head-red">Relationships</th></tr>
+                  <tr :class="{hidden : !opened[human.id].relationship}">
+                    <th scope="col">Name</th>
+                    <th scope="col">Surname</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Start_date</th>
+                    <th scope="col">End_date</th>
+                  </tr>
+                </thead>
+                <tbody :class="{hidden : !opened[human.id].relationship}">
+                  <template v-for="relationship in human.relationship" v-bind:key="relationship">
+                    <tr>
+                      <td>{{relationship.name}}</td>
+                      <td>{{relationship.surname}}</td>
+                      <td class="left-border">{{relationship.type}}</td>
+                      <td class="left-border">{{relationship.start_date}}</td>
+                      <td>{{relationship.end_date}}</td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <!--            СОБЫТИЯ-->
+          <tr v-if="human.id in opened && human.event">
+<!--            СОБЫТИЯ-->
+            <td colspan="13">
+              <table class="table mb-0">
+                <thead>
+                <tr><th @click="opened[human.id].event = !opened[human.id].event" colspan="5" scope="col" class="table-name head-blue">Events</th></tr>
+                <tr :class="{hidden : !opened[human.id].event}">
+                  <th scope="col">#</th>
+                  <th scope="col">Location_id</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">Date</th>
+                </tr>
+                </thead>
+                <tbody :class="{hidden : !opened[human.id].event}">
+                <template v-for="event in human.event" v-bind:key="event">
+                  <tr>
+                    <td>{{event.id}}</td>
+                    <td class="left-border">{{event.location_id}}</td>
+                    <td class="left-border">{{event.name}}</td>
+                    <td>{{event.description}}</td>
+                    <td class="left-border">{{event.date}}</td>
+                  </tr>
+                </template>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <!--            КАЧЕСТВА-->
+          <tr v-if="human.id in opened && human.property">
+            <!--            КАЧЕСТВА-->
+            <td colspan="13">
+              <table class="table mb-0">
+                <thead>
+                <tr><th @click="opened[human.id].property = !opened[human.id].property" colspan="3" scope="col" class="table-name head-green">Property</th></tr>
+                <tr :class="{hidden : !opened[human.id].property}">
+                  <th scope="col">#</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Description</th>
+                </tr>
+                </thead>
+                <tbody :class="{hidden : !opened[human.id].property}">
+                <template v-for="property in human.property" v-bind:key="property">
+                  <tr>
+                    <td>{{property.id}}</td>
+                    <td class="left-border">{{property.name}}</td>
+                    <td>{{property.description}}</td>
+                  </tr>
+                </template>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
   </div>
-  <div class="text-center" style="margin: 1em">
-    <div class="form-group">
-      <button
-          v-on:click="getPage(n-1)"
-          type="button"
-          class="btn btn-success"
-          v-for="n in number_of_pages"
-          :key="n"
-          style="margin: 0.1em">
-        {{ n }}
-      </button>
-    </div>
-  </div>
+
+<!--  <div style="margin: 1em">-->
+<!--    <div class="form-group">-->
+<!--      <button-->
+<!--          v-on:click="addTag(tag.tagName)"-->
+<!--          type="button"-->
+<!--          class="btn btn-warning"-->
+<!--          v-for="tag in tags"-->
+<!--          :key="tag"-->
+<!--          style="margin: 0.1em">-->
+<!--        {{ tag.tagName }}-->
+<!--      </button>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--  <div style="margin: 1em">-->
+<!--    <div class="form-group">-->
+<!--      <button-->
+<!--          v-on:click="addTag(tag)"-->
+<!--          type="button"-->
+<!--          class="btn btn-success"-->
+<!--          v-for="tag in tagNameList"-->
+<!--          :key="tag"-->
+<!--          style="margin: 0.1em"-->
+<!--      >-->
+<!--        {{ tag }}-->
+<!--      </button>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--  <div class="card text-center" style="margin: 1em" v-for="project in projects" :key="project.id">-->
+<!--    <div class="card-header">-->
+<!--      {{ project.leaderEmail }}-->
+<!--    </div>-->
+<!--    <div class="card-body">-->
+<!--      <h5 class="card-title">{{ project.name }}</h5>-->
+<!--      <p class="card-text">{{ project.description }}</p>-->
+<!--      <a class="btn btn-primary" v-on:click="addUserToProject({'id': project.id})" v-if="this.$store.state.auth.user">Подать заявку</a>-->
+<!--      <p class="card-text" style="margin-top: 1em" v-if="this.$store.state.auth.user">{{ project.answer }}</p>-->
+<!--    </div>-->
+<!--    <div class="card-footer text-white" v-if="project.tagNameList.length !== 0">-->
+<!--      <span class="badge bg-success" v-for="tagName in project.tagNameList" :key="tagName" style="margin: 0.1em">-->
+<!--        {{ tagName }}-->
+<!--      </span>-->
+<!--    </div>-->
+
+<!--    <div class="card-footer text-muted">-->
+<!--      Дедлайн: {{ formatDate(project.end_date) }}-->
+<!--    </div>-->
+<!--  </div>-->
+<!--  <div class="text-center" style="margin: 1em">-->
+<!--    <div class="form-group">-->
+<!--      <button-->
+<!--          v-on:click="getPage(n-1)"-->
+<!--          type="button"-->
+<!--          class="btn btn-success"-->
+<!--          v-for="n in number_of_pages"-->
+<!--          :key="n"-->
+<!--          style="margin: 0.1em">-->
+<!--        {{ n }}-->
+<!--      </button>-->
+<!--    </div>-->
+<!--  </div>-->
 </template>
 
 <script>
@@ -93,6 +244,83 @@ export default {
       requestedTags: {
         'tags' : []
       },
+
+      // TODO: Тестовые данные пока нет backend
+      opened: {},
+      humans: [
+        {
+          id: 1, name: "Egor", surname: "Krivonosov",
+          location_id: 1, // TODO: Заменить на название локации
+          is_real: true,
+          is_doctor: true,
+          sex: "MALE",
+          race: "GREEN MAN",
+          gender: "wtf",
+          temperament: "SANGUINE",
+          status: "ELITE",
+          birth_date: "17.10.2001",
+          death_date: null,
+
+          relationship: [{
+            name: "Petr",
+            surname: "Markov",
+            type: "FRIENDS",
+            start_date: "2019",
+            end_date: "ХЗ"
+          }],
+
+          event: [{
+            id: 1,
+            location_id: 1,  // TODO: Заменить на название локации
+            name: "Написание курсача",
+            description: "Может не надо???",
+            date: "01.09.2021"
+          },
+            {
+              id: 2,
+              location_id: 1,  // TODO: Заменить на название локации
+              name: "CS:GO",
+              description: "Сюрфит на рекордики",
+              date: "14.01.2022"
+            }],
+
+          property: [{
+            id: 1,
+            name: "Дружелюбный",
+            description: "... 11 ..."
+          },
+            {
+              id: 2,
+              name: "Не дружелюбный",
+              description: "... 11 ..."
+            },
+            {
+              id: 3,
+              name: "Секси",
+              description: "... 11 ..."
+            },]
+      },
+        {
+          id: 2, name: "Petr", surname: "Markov",
+          location_id: 1,
+          is_real: true,
+          is_doctor: true,
+          sex: "MALE",
+          race: "PDF MAN",
+          gender: "wtf",
+          temperament: "SANGUINE",
+          status: "ELITE",
+          birth_date: "24.02.2002",
+          death_date: null,
+
+          relationship: [{
+            name: "Egor",
+            surname: "Krivonosov",
+            type: "FRIENDS",
+            start_date: "2019",
+            end_date: "ХЗ"
+          }],
+      }],
     };
   },
   mounted() {
@@ -267,6 +495,56 @@ export default {
           }
       );
     },
+    toggle(id) {
+      // const index = this.opened.indexOf(id);
+      if (id in this.opened) {
+        delete this.opened[id]
+        // this.opened.splice(index, 1)
+      } else {
+        this.opened[id] = {relationships: false, events: false, property: false}
+      }
+    },
   },
 };
 </script>
+
+<style scoped>
+.left-border {
+  border-left: 1px solid rgba(34,36,38,.1) !important;
+}
+
+.table td {
+  text-align: center;
+}
+
+.table-name {
+  text-align: left;
+}
+
+.head-red {
+  background-color: #BC243C;
+  color: white;
+}
+
+.head-blue {
+  background-color: #34568B;
+  color: white;
+}
+
+.head-green {
+  background-color: #009B77;
+  color: white;
+}
+
+.table {
+  border: 3px solid rgba(34,36,38,.1);
+}
+
+td > .table {
+  border: 1px solid rgba(34,36,38,.1);
+}
+
+.hidden {
+  visibility: collapse;
+}
+</style>
