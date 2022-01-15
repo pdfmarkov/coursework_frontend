@@ -104,23 +104,34 @@
             <td colspan="13">
               <table class="table mb-0">
                 <thead>
-                <tr><th @click="opened[human.id].event = !opened[human.id].event" colspan="5" scope="col" class="table-name head-blue">Events</th></tr>
+                <tr><th @click="opened[human.id].event = !opened[human.id].event" colspan="6" scope="col" class="table-name head-blue">Events</th></tr>
                 <tr :class="{hidden : !opened[human.id].event}">
                   <th scope="col">#</th>
                   <th scope="col">Location_id</th>
                   <th scope="col">Name</th>
                   <th scope="col">Description</th>
                   <th scope="col">Date</th>
+                  <th scope="col">Good?</th>
                 </tr>
                 </thead>
                 <tbody :class="{hidden : !opened[human.id].event}">
                 <template v-for="event in human.event" v-bind:key="event">
-                  <tr>
+                  <tr :style="[event.good != null ? (event.good ? {background: '#4CAF50'} : {background: '#F44336'}) : {}]">
                     <td>{{event.id}}</td>
                     <td class="left-border">{{event.location_id}}</td>
                     <td class="left-border">{{event.name}}</td>
                     <td>{{event.description}}</td>
                     <td class="left-border">{{event.date}}</td>
+                    <td class="left-border">
+                      <div class="input-group justify-content-center">
+                        <div class="input-group-prepend">
+                          <button @click="UpdateEvent(human.id, event.id, true)" class="btn btn-outline-secondary green" type="button">Yes</button>
+                        </div>
+                        <div class="input-group-append">
+                          <button @click="UpdateEvent(human.id, event.id, false)" class="btn btn-outline-secondary red" type="button">No</button>
+                        </div>
+                      </div>
+                    </td>
                   </tr>
                 </template>
                 </tbody>
@@ -133,19 +144,30 @@
             <td colspan="13">
               <table class="table mb-0">
                 <thead>
-                <tr><th @click="opened[human.id].property = !opened[human.id].property" colspan="3" scope="col" class="table-name head-green">Property</th></tr>
+                <tr><th @click="opened[human.id].property = !opened[human.id].property" colspan="4" scope="col" class="table-name head-green">Property</th></tr>
                 <tr :class="{hidden : !opened[human.id].property}">
                   <th scope="col">#</th>
                   <th scope="col">Name</th>
                   <th scope="col">Description</th>
+                  <th scope="col">Good?</th>
                 </tr>
                 </thead>
                 <tbody :class="{hidden : !opened[human.id].property}">
                 <template v-for="property in human.property" v-bind:key="property">
-                  <tr>
+                  <tr :style="[property.good != null ? (property.good ? {background: '#4CAF50'} : {background: '#F44336'}) : {}]">
                     <td>{{property.id}}</td>
                     <td class="left-border">{{property.name}}</td>
                     <td>{{property.description}}</td>
+                    <td class="left-border">
+                      <div class="input-group justify-content-center">
+                        <div class="input-group-prepend">
+                          <button @click="UpdateProperty(human.id, property.id, true)" class="btn btn-outline-secondary green" type="button">Yes</button>
+                        </div>
+                        <div class="input-group-append">
+                          <button @click="UpdateProperty(human.id, property.id, false)" class="btn btn-outline-secondary red" type="button">No</button>
+                        </div>
+                      </div>
+                    </td>
                   </tr>
                 </template>
                 </tbody>
@@ -290,30 +312,35 @@ export default {
             location_id: 1,  // TODO: Заменить на название локации
             name: "Написание курсача",
             description: "Может не надо???",
-            date: "01.09.2021"
+            date: "01.09.2021",
+            good: false
           },
             {
               id: 2,
               location_id: 1,  // TODO: Заменить на название локации
               name: "CS:GO",
               description: "Сюрфит на рекордики",
-              date: "14.01.2022"
+              date: "14.01.2022",
+              good: true
             }],
 
           property: [{
             id: 1,
             name: "Дружелюбный",
-            description: "... 11 ..."
+            description: "... 11 ...",
+            good: true
           },
             {
               id: 2,
               name: "Не дружелюбный",
-              description: "... 11 ..."
+              description: "... 11 ...",
+              good: false
             },
             {
               id: 3,
               name: "Секси",
-              description: "... 11 ..."
+              description: "... 11 ...",
+              good: null
             },]
       },
         {
@@ -345,14 +372,21 @@ export default {
 
       table_cfg: {
         max_humans_on_page: 10
-      }
+      },
+
     };
   },
   created() {
     // TODO: Отправить запрос на бэк и получить число страниц по max_humans_on_page на странице
     this.pagination_cfg.pages = Math.floor(this.humans.length / this.table_cfg.max_humans_on_page - 0.01)
   },
+  computed: {
+    currentUser() {
+      return this.$store.state.auth.user;
+    }
+  },
   mounted() {
+    // if (!this.currentUser) this.$router.push('/login');
     ProjectService.getNumberOfElements().then(
         (response) => {
           this.content = null;
@@ -544,7 +578,16 @@ export default {
       this.pagination_cfg.current_page--
       console.log("prev")
     },
-
+    UpdateEvent(human_id, event_id, status){
+      if (this.humans[human_id - 1].event[event_id - 1].good !== status)
+        this.humans[human_id - 1].event[event_id - 1].good = status
+      // Добавить отправку на backend
+    },
+    UpdateProperty(human_id, property_id, status){
+      if (this.humans[human_id - 1].property[property_id - 1].good !== status)
+        this.humans[human_id - 1].property[property_id - 1].good = status
+      // Добавить отправку на backend
+    }
   },
 };
 </script>
@@ -575,6 +618,21 @@ export default {
 
 .head-green {
   background-color: #009B77;
+  color: white;
+}
+
+.red {
+  background-color: #F44336;
+  color: white;
+}
+
+.green {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.blue {
+  background-color: #39CCCC;
   color: white;
 }
 

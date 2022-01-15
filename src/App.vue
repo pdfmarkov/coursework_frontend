@@ -66,8 +66,8 @@ export default {
 
   computed: {
     currentUser() {
-      return true
-      // return this.$store.state.auth.user;
+      // return true
+      return this.$store.state.auth.user;
     },
     currentNotifications() {
       return this.$store.state.socket.notifications;

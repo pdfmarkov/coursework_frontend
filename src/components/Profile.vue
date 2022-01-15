@@ -31,8 +31,8 @@
               </div>
               <div class="row mt-1">
                 <div class="col-md-6"><label class="labels">Sex</label>
-                  <Field name="sex" as="select" type="text" class="form-control">
-                    <option value="" :disabled="getSex() === '- Select Sex -'" selected v-text="getSex()"/>
+                  <Field name="sex" as="select" class="form-control">
+                    <option :value="getSex()" :disabled="getSex() === '- Select Sex -'" selected v-text="getSex()"/>
                     <template v-for="s in sex" v-bind:key="s" >
                       <option v-bind:value="s" v-if="s !== getSex()">{{s}}</option>
                     </template>
@@ -52,8 +52,8 @@
               </div>
               <div class="row mt-2">
                 <div class="col-md-6"><label class="labels">Temperament</label>
-                  <Field name="temperament" as="select" type="text" class="form-control">
-                    <option value="" :disabled="getTemperament() === '- Select Temperament -'" selected v-text="getTemperament()"/>
+                  <Field name="temperament" as="select" class="form-control">
+                    <option :value="getTemperament()" :disabled="getTemperament() === '- Select Temperament -'" selected v-text="getTemperament()"/>
                     <template v-for="t in temperaments" v-bind:key="t" >
                       <option v-bind:value="t" v-if="t !== getTemperament()">{{t}}</option>
                     </template>
@@ -61,8 +61,8 @@
                   <ErrorMessage name="temperament" class="error-feedback" />
                 </div>
                 <div class="col-md-6"><label class="labels">Status</label>
-                  <Field name="status" as="select" type="text" class="form-control">
-                    <option value="" :disabled="getStatus() === '- Select Status -'" selected v-text="getStatus()"/>
+                  <Field name="status" as="select" class="form-control">
+                    <option :value="getStatus()" :disabled="getStatus() === '- Select Status -'" selected v-text="getStatus()"/>
                     <template v-for="s in status" v-bind:key="s" >
                       <option v-bind:value="s" v-if="s !== getStatus()">{{s}}</option>
                     </template>
@@ -295,6 +295,7 @@ export default {
           this.info.status == null ? 'Add doctor info' : 'Update doctor info';
     },
     addUserInfo(user) {
+      console.log(user)
       UserService.addUserInfo(user).then(
           (response) => {
             this.info = response.data;

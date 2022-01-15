@@ -157,9 +157,7 @@ export default {
     },
   },
   mounted() {
-    if (this.loggedIn) {
-      this.$router.push("/home");
-    }
+    // if (!this.loggedIn) this.$router.push("/home");
   },
   methods: {
     handleRegister(user) {
@@ -170,7 +168,7 @@ export default {
       // TODO: Убрать когда будет backend
       this.$router.push("/home")
 
-      this.$store.dispatch("auth/register", user).then(
+      this.$store.dispatch("auth/registerDoctor", user).then(
           (data) => {
             this.message = data.message;
             this.successful = true;
