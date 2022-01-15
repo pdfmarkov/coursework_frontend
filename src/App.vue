@@ -29,15 +29,15 @@
       </div>
 
       <div v-if="currentUser" class="navbar-nav ml-auto">
-        <li class="nav-item">
-          <router-link to="/notifications" class="nav-link">
-            <font-awesome-icon icon="bell"/>
-            Notifications
-            <label v-if="currentNotifications !== 0">
-              ({{ currentNotifications }})
-            </label>
-          </router-link>
-        </li>
+<!--        <li class="nav-item">-->
+<!--          <router-link to="/notifications" class="nav-link">-->
+<!--            <font-awesome-icon icon="bell"/>-->
+<!--            Notifications-->
+<!--            <label v-if="currentNotifications !== 0">-->
+<!--              ({{ currentNotifications }})-->
+<!--            </label>-->
+<!--          </router-link>-->
+<!--        </li>-->
         <li class="nav-item">
           <router-link to="/profile" class="nav-link">
             <font-awesome-icon icon="user" />
@@ -66,7 +66,8 @@ export default {
 
   computed: {
     currentUser() {
-      return this.$store.state.auth.user;
+      return true
+      // return this.$store.state.auth.user;
     },
     currentNotifications() {
       return this.$store.state.socket.notifications;

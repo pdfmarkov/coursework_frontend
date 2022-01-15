@@ -8,8 +8,8 @@
     </div>
     <Form @submit="addUserInfo" :validation-schema="schema">
       <div class="container rounded bg-white mt-5 mb-5">
-        <div class="row">
-          <div class="col-md-5 border-right">
+        <div class="row justify-content-center">
+          <div class="col-md-5">
             <div class="p-3 py-5">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="text-right">My Profile</h4>
@@ -24,74 +24,59 @@
                   <Field name="name" type="text" class="form-control" v-bind:placeholder="getName()" />
                   <ErrorMessage name="name" class="error-feedback" />
                 </div>
-                <div class="col-md-6">
-                  <label class="labels">Surname</label>
+                <div class="col-md-6"><label class="labels">Surname</label>
                   <Field name="surname"  type="text" class="form-control" v-bind:placeholder="getSurname()" />
                   <ErrorMessage name="surname" class="error-feedback" />
                 </div>
               </div>
-              <div class="row mt-3">
-                 <div class="col-md-6">
-                  <span>Birth date: <p/>{{ getBirthDate() }}<p/></span>
-                  <Field name="birthDate" type="datetime-local" class="form-control" v-bind:placeholder="getBirthDate()"/>
-                  <ErrorMessage name="birthDate" class="error-feedback" />
-                </div>
-              </div>
               <div class="row mt-1">
-                <div class="col-md-6">
-                  <label>Description</label>
-                  <Field name="description" as="textarea" type="text" class="form-control" v-bind:placeholder="getDescription()"/>
-                  <ErrorMessage name="description" class="error-feedback" />
+                <div class="col-md-6"><label class="labels">Sex</label>
+                  <Field name="sex" as="select" type="text" class="form-control">
+                    <option value="" :disabled="getSex() === '- Select Sex -'" selected v-text="getSex()"/>
+                    <template v-for="s in sex" v-bind:key="s" >
+                      <option v-bind:value="s" v-if="s !== getSex()">{{s}}</option>
+                    </template>
+                  </Field>
+                  <ErrorMessage name="sex" class="error-feedback" />
                 </div>
               </div>
+              <div class="row mt-2">
+                <div class="col-md-6"><label class="labels">Race</label>
+                  <Field name="race" type="text" class="form-control" v-bind:placeholder="getRace()" />
+                  <ErrorMessage name="race" class="error-feedback" />
+                </div>
+                <div class="col-md-6"><label class="labels">Gender</label>
+                  <Field name="gender" type="text" class="form-control" v-bind:placeholder="getGender()" />
+                  <ErrorMessage name="gender" class="error-feedback" />
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-md-6"><label class="labels">Temperament</label>
+                  <Field name="temperament" as="select" type="text" class="form-control">
+                    <option value="" :disabled="getTemperament() === '- Select Temperament -'" selected v-text="getTemperament()"/>
+                    <template v-for="t in temperaments" v-bind:key="t" >
+                      <option v-bind:value="t" v-if="t !== getTemperament()">{{t}}</option>
+                    </template>
+                  </Field>
+                  <ErrorMessage name="temperament" class="error-feedback" />
+                </div>
+                <div class="col-md-6"><label class="labels">Status</label>
+                  <Field name="status" as="select" type="text" class="form-control">
+                    <option value="" :disabled="getStatus() === '- Select Status -'" selected v-text="getStatus()"/>
+                    <template v-for="s in status" v-bind:key="s" >
+                      <option v-bind:value="s" v-if="s !== getStatus()">{{s}}</option>
+                    </template>
+                  </Field>
+                  <ErrorMessage name="status" class="error-feedback" />
+                </div>
+              </div>
+
               <div class="mt-5 text-center">
                 <div class="form-group">
                   <button class="btn btn-primary btn-block" :disabled="loading">
                   <span v-show="loading" class="spinner-border spinner-border-sm"></span>
-                    <span>Add user info</span>
+                    <span v-text="checkInfo()"></span>
                   </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-5">
-            <div class="p-3 py-5">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="text-right">My Tags</h4>
-              </div>
-              <div class="" >
-                <div class="form-group">
-                  <div class="" v-if="!added_tags.tags.isEmpty" >
-                    <label><p/>Added tags:</label>
-                    <span class="badge bg-success text-white" v-for="tag in added_tags.tags" :key="tag" style="margin: 0.1em">
-                      {{ tag.tagName }}
-                    </span>
-                  </div>
-                  <label><p/>Add some new tags:<p/></label>
-                  <button v-on:click="addTagToUser({'tagName': tag.tagName, 'categoryName': ''})" type="button" class="btn btn-success" v-for="tag in tags" :key="tag" style="margin: 0.1em">
-                    {{ tag.tagName }}
-                  </button>
-                  <ErrorMessage name="tags" class="error-feedback" />
-                </div>
-              </div>
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="text-right">My Projects</h4>
-              </div>
-              <div class="card text-center" style="margin: 1em" v-for="project in projects" :key="project.id">
-                <div class="card-body">
-                  <h5 class="card-title">{{ project.name }}</h5>
-                  <p class="card-text">{{ project.description }}</p>
-                  <!--      TODO: ДОБАВИТЬ КНОПКУ ДЛЯ УДАЛЕНИЯ ДЛЯ АДМИНА  -->
-                  <p class="card-text "><em>{{ connections[project.id] }}</em></p>
-                </div>
-                <div class="card-footer text-white" v-if="project.tagNameList.length !== 0">
-                  <span class="badge bg-success" v-for="tagName in project.tagNameList" :key="tagName" style="margin: 0.1em">
-                    {{ tagName }}
-                  </span>
-                </div>
-
-                <div class="card-footer text-muted">
-                  Дедлайн: {{ formatDate(project.end_date) }}
                 </div>
               </div>
             </div>
@@ -119,19 +104,30 @@ export default {
   },
   data() {
     const schema = yup.object().shape({
-      name:
-          yup
-              .string(),
-      surname:
-          yup
-              .string(),
-      birthDate:
-          yup
-              .date(),
-      description:
-          yup
-              .string(),
-
+      name: yup
+          .string()
+          .required(),
+      surname: yup
+          .string()
+          .required(),
+      sex: yup
+          .string()
+          .required(),
+      race: yup
+          .string()
+          .required("Race is required!")
+          .max(64, "There should be no more than 64 characters!"),
+      gender: yup
+          .string(),
+      temperament: yup
+          .string()
+          .required("Temperament required!")
+          .nullable()
+      ,
+      status: yup
+          .string()
+          .required("Status required!")
+          .nullable()
     });
     return {
       tags: null,
@@ -159,6 +155,25 @@ export default {
         'November',
         'December'
       ],
+
+      // TODO: Загрузка с backend
+      sex: [
+        "MALE",
+        "FEMALE"
+      ],
+      temperaments: [
+        "SANGUINE",
+        "CHOLERIC",
+        "MELANCHOLIC",
+        "PHLEGMATIC"
+      ],
+      status: [
+        "ELITE",
+        "UPPER",
+        "LOWER",
+        "WORKING",
+        "POOR"
+      ]
     };
   },
   computed: {
@@ -167,7 +182,7 @@ export default {
     }
   },
   mounted() {
-    if (!this.currentUser) this.$router.push('/login');
+    // if (!this.currentUser) this.$router.push('/login');
     ProjectService.getProfileProjects().then(
         (response) => {
           this.projects = response.data.projectListResponseDto.projects;
@@ -254,11 +269,30 @@ export default {
     getSurname() {
       return this.info == null  || this.info.surname == null ? 'Write your surname' : this.info.surname;
     },
-    getBirthDate() {
-      return this.info == null  || this.info.birthDate == null ? 'Write your birth date' : new Date(this.info.birthDate).getDate() + " " + this.months[new Date(this.info.birthDate).getMonth()] + " " + new Date(this.info.birthDate).getFullYear();
+    getSex() {
+      return this.info == null  || this.info.sex == null ? '- Select Sex -' : this.info.sex;
     },
-    getDescription() {
-      return this.info == null  || this.info.description == null ? 'Write your description' : this.info.description;
+    getRace(){
+      return this.info == null  || this.info.race == null ? 'Write you Race' : this.info.race;
+    },
+    getGender(){
+      return this.info == null  || this.info.gender == null ? 'Write you Gender' : this.info.gender;
+    },
+    getTemperament(){
+      return this.info == null  || this.info.temperament == null ? '- Select Temperament -' : this.info.temperament;
+    },
+    getStatus(){
+      return this.info == null  || this.info.status == null ? '- Select Status -' : this.info.status;
+    },
+    checkInfo() {
+      return this.info == null ||
+          this.info.name == null &&
+          this.info.surname == null &&
+          this.info.sex == null &&
+          this.info.race == null &&
+          this.info.gender == null &&
+          this.info.temperament == null &&
+          this.info.status == null ? 'Add doctor info' : 'Update doctor info';
     },
     addUserInfo(user) {
       UserService.addUserInfo(user).then(
@@ -306,3 +340,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.error-feedback {
+  color: red;
+}
+</style>

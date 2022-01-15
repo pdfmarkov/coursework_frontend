@@ -7,8 +7,8 @@
     {{ content }}
   </div>
 
-  <div class="table-responsive" style="margin: 1em" v-if="humans.length">
-    <table class="table table-striped table-hover">
+  <div class="table-responsive" v-if="humans.length">
+    <table class="table table-striped table-hover" data-search="true">
       <thead>
         <tr>
           <th scope="col">
@@ -24,10 +24,10 @@
             <a>Location_id</a>
           </th>
           <th scope="col">
-            <a>is_real</a>
+            <a>Real?</a>
           </th>
           <th scope="col">
-            <a>is_doctor</a>
+            <a>Doctor?</a>
           </th>
           <th scope="col">
             <a>Sex</a>
@@ -59,8 +59,8 @@
             <td class="left-border">{{human.name}}</td>
             <td>{{human.surname}}</td>
             <td class="left-border">{{human.location_id}}</td>
-            <td>{{human.is_real}}</td>
-            <td>{{human.is_doctor}}</td>
+            <td><span class="badge" :class="{'badge-success' : human.is_real, 'badge-danger' : !human.is_real}">{{human.is_real ? "Да" : "Нет"}}</span></td>
+            <td><span class="badge" :class="{'badge-success' : human.is_doctor, 'badge-danger' : !human.is_doctor}">{{human.is_doctor ? "Да" : "Нет"}}</span></td>
             <td class="left-border">{{human.sex}}</td>
             <td>{{human.race}}</td>
             <td>{{human.gender}}</td>
@@ -155,24 +155,23 @@
         </template>
       </tbody>
     </table>
-
-    <nav>
-      <ul class="pagination justify-content-center">
-        <li class="page-item" :class="{disabled : pagination_cfg.current_page === 0}">
-          <a class="page-link"
-             :aria-disabled="{true : pagination_cfg.current_page === 0}"
-             @click="prevTable"
-             name="prev" >Previous</a>
-        </li>
-        <li class="page-item" :class="{disabled : pagination_cfg.pages === pagination_cfg.current_page}">
-          <a class="page-link"
-             :aria-disabled="{true : pagination_cfg.pages === pagination_cfg.current_page}"
-             @click="nextTable"
-             name="next">Next</a>
-        </li>
-      </ul>
-    </nav>
   </div>
+  <nav style="margin: 1em">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" :class="{disabled : pagination_cfg.current_page === 0}">
+        <a class="page-link"
+           :aria-disabled="{true : pagination_cfg.current_page === 0}"
+           @click="prevTable"
+           name="prev" >Previous</a>
+      </li>
+      <li class="page-item" :class="{disabled : pagination_cfg.pages === pagination_cfg.current_page}">
+        <a class="page-link"
+           :aria-disabled="{true : pagination_cfg.pages === pagination_cfg.current_page}"
+           @click="nextTable"
+           name="next">Next</a>
+      </li>
+    </ul>
+  </nav>
 
 <!--  <div style="margin: 1em">-->
 <!--    <div class="form-group">-->
@@ -271,7 +270,7 @@ export default {
           is_real: true,
           is_doctor: true,
           sex: "MALE",
-          race: "GREEN MAN",
+          race: "GREEN",
           gender: "wtf",
           temperament: "SANGUINE",
           status: "ELITE",
@@ -320,7 +319,7 @@ export default {
         {
           id: 2, name: "Petr", surname: "Markov",
           location_id: 1,
-          is_real: true,
+          is_real: false,
           is_doctor: true,
           sex: "MALE",
           race: "PDF MAN",
@@ -555,12 +554,9 @@ export default {
   border-left: 1px solid rgba(34,36,38,.1) !important;
 }
 
-.table td {
+.table td, .table th {
   text-align: center;
-}
-
-.table {
-
+  padding: 0.5em;
 }
 
 .table-name {
@@ -592,5 +588,15 @@ td > .table {
 
 .hidden {
   visibility: collapse;
+}
+
+.badge-success {
+  background: #61cd1d;
+  padding-left: 0.65em;
+  padding-right: 0.65em;
+}
+
+.badge-danger {
+  background: #e45c21;
 }
 </style>
