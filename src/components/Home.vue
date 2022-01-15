@@ -1,8 +1,8 @@
 <template>
-  <form class="d-flex" style="margin: 1em">
-    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" v-model="name">
-    <button class="btn btn-outline-success" type="button" @click="search">Search</button>
-  </form>
+<!--  <form class="d-flex" style="margin: 1em">-->
+<!--    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" v-model="name">-->
+<!--    <button class="btn btn-outline-success" type="button" @click="search">Search</button>-->
+<!--  </form>-->
   <div class="alert alert-danger" role="alert" v-if="content != null" style="margin: 1em">
     {{ content }}
   </div>
@@ -155,6 +155,23 @@
         </template>
       </tbody>
     </table>
+
+    <nav>
+      <ul class="pagination justify-content-center">
+        <li class="page-item" :class="{disabled : pagination_cfg.current_page === 0}">
+          <a class="page-link"
+             :aria-disabled="{true : pagination_cfg.current_page === 0}"
+             @click="prevTable"
+             name="prev" >Previous</a>
+        </li>
+        <li class="page-item" :class="{disabled : pagination_cfg.pages === pagination_cfg.current_page}">
+          <a class="page-link"
+             :aria-disabled="{true : pagination_cfg.pages === pagination_cfg.current_page}"
+             @click="nextTable"
+             name="next">Next</a>
+        </li>
+      </ul>
+    </nav>
   </div>
 
 <!--  <div style="margin: 1em">-->
@@ -321,7 +338,20 @@ export default {
             end_date: "ХЗ"
           }],
       }],
+
+      pagination_cfg: {
+        pages: 0,
+        current_page: 0,
+      },
+
+      table_cfg: {
+        max_humans_on_page: 10
+      }
     };
+  },
+  created() {
+    // TODO: Отправить запрос на бэк и получить число страниц по max_humans_on_page на странице
+    this.pagination_cfg.pages = Math.floor(this.humans.length / this.table_cfg.max_humans_on_page - 0.01)
   },
   mounted() {
     ProjectService.getNumberOfElements().then(
@@ -504,6 +534,18 @@ export default {
         this.opened[id] = {relationships: false, events: false, property: false}
       }
     },
+
+    // TODO: Загрузка происходит с backend добавить
+    nextTable(){
+      this.pagination_cfg.current_page++
+      // Передается cur_page, max_human_page
+      console.log("next")
+    },
+    prevTable(){
+      this.pagination_cfg.current_page--
+      console.log("prev")
+    },
+
   },
 };
 </script>
@@ -515,6 +557,10 @@ export default {
 
 .table td {
   text-align: center;
+}
+
+.table {
+
 }
 
 .table-name {
