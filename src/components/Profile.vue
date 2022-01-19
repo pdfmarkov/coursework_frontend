@@ -90,10 +90,9 @@
 <script>
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
-import UserService from "../services/user.service";
-import EventBus from "../common/EventBus";
-import ProjectService from "../services/project.service";
-import TagService from "../services/tag.service";
+import DoctorService from "@/services/doctor.service";
+import EventBus from "@/common/EventBus";
+// import EventBus from "../common/EventBus";
 
 export default {
   name: 'Profile',
@@ -155,25 +154,9 @@ export default {
         'November',
         'December'
       ],
-
-      // TODO: Загрузка с backend
-      sex: [
-        "MALE",
-        "FEMALE"
-      ],
-      temperaments: [
-        "SANGUINE",
-        "CHOLERIC",
-        "MELANCHOLIC",
-        "PHLEGMATIC"
-      ],
-      status: [
-        "ELITE",
-        "UPPER",
-        "LOWER",
-        "WORKING",
-        "POOR"
-      ]
+      sex: [],
+      temperaments: [],
+      status: []
     };
   },
   computed: {
@@ -182,33 +165,11 @@ export default {
     }
   },
   mounted() {
-    // if (!this.currentUser) this.$router.push('/login');
-    ProjectService.getProfileProjects().then(
-        (response) => {
-          this.projects = response.data.projectListResponseDto.projects;
-          this.connections = response.data.connections;
-        },
-        (error) => {
+    if (!this.currentUser) this.$router.push('/login');
 
-          let message = (error.response &&
-                  error.response.data &&
-                  error.response.data.message) ||
-              error.message ||
-              error.toString();
-
-          if (message === 'Error: Projects not found') {
-            TagService.getCategories().then(
-                (response) => {
-                  this.tags = response.data;
-                  this.content = null;
-                },
-            );
-          } else this.content = message;
-        }
-    );
-    UserService.getUserInfo().then(
+    DoctorService.getEnumOfSex().then(
         (response) => {
-          this.info = response.data;
+          this.sex = response.data;
         },
         (error) => {
           if (error.response && (error.response.status === 403 || error.response.status === 401)) {
@@ -223,43 +184,44 @@ export default {
               error.toString();
         }
     );
-    TagService.getUserTags().then(
-        (response) => {
-          response.data.forEach(
-              tag =>
-                  this.added_tags.tags.push({
-                    'tagName': tag.tagName,
-                    'categoryName': ''
-                  })
-          );
-          TagService.getCheckedTags(this.added_tags).then(
-              (response) => {
 
-                this.tags = response.data;
-              });
+    DoctorService.getEnumOfTemperament().then(
+        (response) => {
+          this.temperaments = response.data;
         },
         (error) => {
           if (error.response && (error.response.status === 403 || error.response.status === 401)) {
             EventBus.dispatch("logout");
           }
 
-          let message = (error.response &&
+          this.content =
+              (error.response &&
                   error.response.data &&
                   error.response.data.message) ||
               error.message ||
               error.toString();
-
-          if (message === 'Error: Tags Not Found') {
-            TagService.getCategories().then(
-                (response) => {
-                  this.tags = response.data;
-                  this.content = null;
-                },
-            );
-          } else this.content = message;
-
         }
     );
+
+    DoctorService.getEnumOfStatus().then(
+        (response) => {
+          this.status = response.data;
+        },
+        (error) => {
+          if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+            EventBus.dispatch("logout");
+          }
+
+          this.content =
+              (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+              error.message ||
+              error.toString();
+        }
+    );
+
+
   },
   methods: {
     formatDate: d => new Date (d).toLocaleString('ru-RU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
@@ -293,50 +255,6 @@ export default {
           this.info.gender == null &&
           this.info.temperament == null &&
           this.info.status == null ? 'Add doctor info' : 'Update doctor info';
-    },
-    addUserInfo(user) {
-      console.log(user)
-      UserService.addUserInfo(user).then(
-          (response) => {
-            this.info = response.data;
-          },
-          (error) => {
-            this.content =
-                (error.response &&
-                    error.response.data &&
-                    error.response.data.message) ||
-                error.message ||
-                error.toString();
-            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
-              EventBus.dispatch("logout");
-            }
-          }
-      );
-    },
-    addTagToUser(tag) {
-      TagService.addTagToUser(tag).then(
-          () => {
-            this.added_tags.tags.push({
-              'tagName': tag.tagName,
-              'categoryName': ''
-            });
-            TagService.getCheckedTags(this.added_tags).then(
-                (response) => {
-                  this.tags = response.data;
-                });
-          },
-          (error) => {
-            this.content =
-                (error.response &&
-                    error.response.data &&
-                    error.response.data.message) ||
-                error.message ||
-                error.toString();
-            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
-              EventBus.dispatch("logout");
-            }
-          }
-      );
     },
   },
 };

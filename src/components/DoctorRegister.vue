@@ -2,17 +2,17 @@
   <div class="col-md-12">
     <div class="card card-container">
       <p class="font-weight-bold text-center" style="font-size: x-large">Doctor's Parameters</p>
-      <Form @submit="handleRegister" :validation-schema="schema">
+      <Form @submit="registerDoctor" :validation-schema="schema">
         <div v-if="!successful">
           <div class="form-group">
-            <label for="doctor_name">Name</label>
-            <Field name="doctor_name" type="text" class="form-control"/>
-            <ErrorMessage name="doctor_name" class="error-feedback" />
+            <label for="name">Name</label>
+            <Field name="name" type="text" class="form-control"/>
+            <ErrorMessage name="name" class="error-feedback" />
           </div>
           <div class="form-group">
-            <label for="doctor_surname">Surname</label>
-            <Field name="doctor_surname" type="text" class="form-control" />
-            <ErrorMessage name="doctor_surname" class="error-feedback" />
+            <label for="surname">Surname</label>
+            <Field name="surname" type="text" class="form-control" />
+            <ErrorMessage name="surname" class="error-feedback" />
           </div>
           <div class="form-group">
             <label for="sex">Sex</label>
@@ -63,11 +63,11 @@
       </Form>
 
       <div
-          v-if="message"
+          v-if="content"
           class="alert"
           :class="successful ? 'alert-success' : 'alert-danger'"
       >
-        {{ message }}
+        {{ content }}
       </div>
     </div>
   </div>
@@ -76,6 +76,9 @@
 <script>
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
+import DoctorService from "../services/doctor.service";
+import EventBus from "@/common/EventBus";
+
 
 export default {
   name: "Register",
@@ -86,12 +89,12 @@ export default {
   },
   data() {
     const schema = yup.object().shape({
-      doctor_name: yup
+      name: yup
           .string()
           .required("Name is required!")
           .min(4, "Must be at least 4 characters!")
       ,
-      doctor_surname: yup
+      surname: yup
           .string()
           .required("Surname is required!")
           .min(4, "Must be at least 4 characters!")
@@ -109,6 +112,7 @@ export default {
       ,
       gender: yup
           .string()
+          .required("Gender is required!")
       ,
       temperament: yup
           .string()
@@ -125,67 +129,103 @@ export default {
     return {
       successful: false,
       loading: false,
-      message: "",
+      content: "",
       schema,
 
       // TODO: Загрузка списков из БД (пока что тестовые значения)
       selectSex: null,
       selectTemperament: null,
       selectStatus: null,
-      sex: [
-          "MALE",
-          "FEMALE"
-      ],
-      temperaments: [
-          "SANGUINE",
-          "CHOLERIC",
-          "MELANCHOLIC",
-          "PHLEGMATIC"
-      ],
-      status: [
-        "ELITE",
-        "UPPER",
-        "LOWER",
-        "WORKING",
-        "POOR"
-      ]
+      sex: [],
+      temperaments: [],
+      status: []
     };
   },
   computed: {
-    loggedIn() {
-      return this.$store.state.auth.status.loggedIn;
-    },
+    currentUser() {
+      return this.$store.state.auth.user;
+    }
   },
   mounted() {
-    // if (!this.loggedIn) this.$router.push("/home");
+    if (!this.currentUser) this.$router.push('/login');
+
+    DoctorService.getEnumOfSex().then(
+        (response) => {
+          this.sex = response.data;
+        },
+        (error) => {
+          if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+            EventBus.dispatch("logout");
+          }
+
+          this.content =
+              (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+              error.message ||
+              error.toString();
+        }
+    );
+
+    DoctorService.getEnumOfTemperament().then(
+        (response) => {
+          this.temperaments = response.data;
+        },
+        (error) => {
+          if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+            EventBus.dispatch("logout");
+          }
+
+          this.content =
+              (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+              error.message ||
+              error.toString();
+        }
+    );
+
+    DoctorService.getEnumOfStatus().then(
+        (response) => {
+          this.status = response.data;
+        },
+        (error) => {
+          if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+            EventBus.dispatch("logout");
+          }
+
+          this.content =
+              (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+              error.message ||
+              error.toString();
+        }
+    );
+
   },
   methods: {
-    handleRegister(user) {
-      this.message = "";
-      this.successful = false;
-      this.loading = true;
-
-      // TODO: Убрать когда будет backend
-      this.$router.push("/home")
-
-      this.$store.dispatch("auth/registerDoctor", user).then(
-          (data) => {
-            this.message = data.message;
-            this.successful = true;
-            this.loading = false;
+    registerDoctor(doctor) {
+      DoctorService.registerDoctor(doctor).then(
+          (response) => {
+            localStorage.setItem("doctorId", response.data.humanId);
+            this.$router.push("/home");
           },
           (error) => {
-            this.message =
+            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+              EventBus.dispatch("logout");
+            }
+
+            this.content =
                 (error.response &&
                     error.response.data &&
                     error.response.data.message) ||
                 error.message ||
                 error.toString();
-            this.successful = false;
-            this.loading = false;
           }
-      );
+      )
     },
+
   },
 };
 </script>

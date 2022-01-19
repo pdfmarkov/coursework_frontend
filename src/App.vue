@@ -60,24 +60,19 @@
 
 <script>
 import EventBus from "./common/EventBus";
-import ProjectService from "./services/project.service";
 
 export default {
+
 
   computed: {
     currentUser() {
       // return true
       return this.$store.state.auth.user;
     },
-    currentNotifications() {
-      return this.$store.state.socket.notifications;
-    }
   },
   methods: {
     logOut() {
       this.$store.dispatch('auth/logout');
-      this.$store.dispatch('socket/disconnect');
-      this.$store.state.socket.notifications = 0;
       this.$router.push('/login');
     },
   },
@@ -85,34 +80,9 @@ export default {
     EventBus.on("logout", () => {
       this.logOut();
     });
-    if (this.currentUser !== null) {
-      this.$store.dispatch("socket/connect", this.currentUser);
-      ProjectService.getNotifications().then(
-          (response) => {
-            this.content = null;
-            this.$store.state.socket.notifications += response.data.checkUserAsLeaderResponseDtoList.length;
-            },
-          (error) => {
-
-            this.content =
-                (error.response &&
-                    error.response.data &&
-                    error.response.data.message) ||
-                error.message ||
-                error.toString();
-
-            if (error.response && (error.response.status === 403 || error.response.status === 401))
-              EventBus.dispatch("logout");
-          }
-      );
-    }
-
   },
   beforeUnmount() {
     EventBus.remove("logout");
   },
-  beforeMount() {
-    this.$store.state.socket.notifications = 0;
-  }
 };
 </script>

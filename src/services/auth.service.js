@@ -29,7 +29,7 @@ class AuthService {
   }
 
   registerDoctor({name, surname, sex, race, gender, temperament, status}){
-    return api.put("/auth/savedoctor", {
+    return api.post("/auth/savedoctor", {
       name,
       surname,
       sex,

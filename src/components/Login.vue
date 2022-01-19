@@ -41,8 +41,9 @@
 <script>
 import { Form, Field, ErrorMessage } from "vee-validate";
 import * as yup from "yup";
-import ProjectService from "../services/project.service";
-import EventBus from "../common/EventBus";
+import DoctorService from "@/services/doctor.service";
+import EventBus from "@/common/EventBus";
+// import EventBus from "../common/EventBus";
 
 export default {
   name: "Login",
@@ -81,20 +82,22 @@ export default {
     handleLogin(user) {
       this.loading = true;
 
-      // TODO: Убрать когда будет backend
-      this.$router.push("/register/doctor")
-
       this.$store.dispatch("auth/login", user).then(
         () => {
-          this.$router.push("/home");
-          this.$store.state.socket.notifications = 0;
-          this.$store.dispatch("socket/connect", this.$store.state.auth.user);
-          ProjectService.getNotifications().then(
+          DoctorService.getDoctorId().then(
               (response) => {
-                this.content = null;
-                this.$store.state.socket.notifications += response.data.checkUserAsLeaderResponseDtoList.length;
-                },
+                localStorage.setItem("doctorId", response.data);
+                this.$router.push("/home")
+              },
               (error) => {
+
+                if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+                  EventBus.dispatch("logout");
+                }
+
+                if (error.response && error.response.status === 404) {
+                  this.$router.push("/register/doctor");
+                }
 
                 this.content =
                     (error.response &&
@@ -102,9 +105,6 @@ export default {
                         error.response.data.message) ||
                     error.message ||
                     error.toString();
-
-                if (error.response && (error.response.status === 403 || error.response.status === 401))
-                  EventBus.dispatch("logout");
               }
           );
         },
