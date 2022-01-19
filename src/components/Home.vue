@@ -7,8 +7,12 @@
     {{ content }}
   </div>
 
+  <nav class="justify-content-center" v-if="humans.length" style="margin: 1em; display: flex">
+    <button @click="magic()" class="btn btn-danger btn-rounded" type="button"> MAGIC </button>
+  </nav>
+
   <div class="table-responsive" v-if="humans.length" style="margin: 1em">
-    <table class="table table-striped table-hover" data-search="true">
+    <table class="table table-striped table-hover">
       <thead>
         <tr>
           <th scope="col">
@@ -70,13 +74,14 @@
             <td v-if="human.deathDate != null">{{formatDate(human.deathDate)}}</td>
             <td v-else>-</td>
           </tr>
+
           <!--            ВЗАИМООТНОШЕНИЯ-->
-          <tr v-if="human.id in opened && human.relationshipResponseDtoList.length > 0">
+          <tr v-if="human.id in opened && human.relationshipResponseDtoList && human.relationshipResponseDtoList.length > 0">
             <td colspan="13">
               <table class="table mb-0">
-                <thead>
-                  <tr><th @click="opened[human.id].relationshipResponseDtoList = !opened[human.id].relationshipResponseDtoList" colspan="5" scope="col" class="table-name head-red">Relationships</th></tr>
-                  <tr :class="{hidden : !opened[human.id].relationshipResponseDtoList}">
+                <thead >
+                  <tr><th @click="opened[human.id].relationships = !opened[human.id].relationships" colspan="5" scope="col" class="table-name head-red">Relationships</th></tr>
+                  <tr :class="{hidden : !opened[human.id].relationships}">
                     <th scope="col">Name</th>
                     <th scope="col">Surname</th>
                     <th scope="col">Type</th>
@@ -84,7 +89,7 @@
                     <th scope="col">EndDate</th>
                   </tr>
                 </thead>
-                <tbody :class="{hidden : !opened[human.id].relationshipResponseDtoList}">
+                <tbody :class="{hidden : !opened[human.id].relationships}">
                   <template v-for="relationship in human.relationshipResponseDtoList" v-bind:key="relationship">
                     <tr>
                       <td>{{relationship.name}}</td>
@@ -99,13 +104,13 @@
             </td>
           </tr>
           <!--            СОБЫТИЯ-->
-          <tr v-if="human.id in opened && human.humanEventResponseDtoList.length > 0">
+          <tr v-if="human.id in opened && human.humanEventResponseDtoList && human.humanEventResponseDtoList.length > 0">
 <!--            СОБЫТИЯ-->
             <td colspan="13">
               <table class="table mb-0">
                 <thead>
-                <tr><th @click="opened[human.id].humanEventResponseDtoList = !opened[human.id].humanEventResponseDtoList" colspan="6" scope="col" class="table-name head-blue">Events</th></tr>
-                <tr :class="{hidden : !opened[human.id].humanEventResponseDtoList}">
+                <tr><th @click="opened[human.id].events = !opened[human.id].events" colspan="6" scope="col" class="table-name head-blue">Events</th></tr>
+                <tr :class="{hidden : !opened[human.id].events}">
                   <th scope="col">#</th>
                   <th scope="col">Location</th>
                   <th scope="col">Name</th>
@@ -114,15 +119,15 @@
                   <th scope="col">Good?</th>
                 </tr>
                 </thead>
-                <tbody :class="{hidden : !opened[human.id].humanEventResponseDtoList}">
+                <tbody :class="{hidden : !opened[human.id].events}">
                 <template v-for="event in human.humanEventResponseDtoList" v-bind:key="event">
-                  <tr :style="[event.isGood != null ? (event.isGood ? {background: '#4CAF50'} : {background: '#F44336'}) : {}]">
+                  <tr>
                     <td>{{event.id}}</td>
                     <td class="left-border">{{event.locationName}}</td>
                     <td class="left-border">{{event.name}}</td>
                     <td>{{event.description}}</td>
                     <td class="left-border">{{formatDate(event.date)}}</td>
-                    <td class="left-border">
+                    <td class="left-border" :style="[event.isGood != null ? (event.isGood ? {background: '#4CAF50'} : {background: '#F44336'}) : {}]">
 <!--                      <div class="input-group justify-content-center">-->
 <!--                        <div class="input-group-prepend">-->
 <!--                          <button @click="UpdateEvent(human.id, event.id, true)" class="btn btn-outline-secondary green" type="button">Yes</button>-->
@@ -139,26 +144,26 @@
             </td>
           </tr>
           <!--            КАЧЕСТВА-->
-          <tr v-if="human.id in opened && human.opinionResponseDtoList.length > 0">
+          <tr v-if="human.id in opened && human.opinionResponseDtoList && human.opinionResponseDtoList.length > 0">
             <!--            КАЧЕСТВА-->
             <td colspan="13">
               <table class="table mb-0">
                 <thead>
-                <tr><th @click="opened[human.id].opinionResponseDtoList = !opened[human.id].opinionResponseDtoList" colspan="4" scope="col" class="table-name head-green">Property</th></tr>
-                <tr :class="{hidden : !opened[human.id].opinionResponseDtoList}">
+                <tr><th @click="opened[human.id].property = !opened[human.id].property" colspan="4" scope="col" class="table-name head-green">Property</th></tr>
+                <tr :class="{hidden : !opened[human.id].property}">
                   <th scope="col">#</th>
                   <th scope="col">Name</th>
                   <th scope="col">Description</th>
                   <th scope="col">Good?</th>
                 </tr>
                 </thead>
-                <tbody :class="{hidden : !opened[human.id].opinionResponseDtoList}">
+                <tbody :class="{hidden : !opened[human.id].property}">
                 <template v-for="property in human.opinionResponseDtoList" v-bind:key="property">
-                  <tr :style="[property.isGood != null ? (property.isGood ? {background: '#4CAF50'} : {background: '#F44336'}) : {}]">
+                  <tr>
                     <td>{{property.id}}</td>
                     <td class="left-border">{{property.name}}</td>
                     <td>{{property.description}}</td>
-                    <td class="left-border">
+                    <td class="left-border" :style="[property.isGood != null ? (property.isGood ? {background: '#4CAF50'} : {background: '#F44336'}) : {}]">
 <!--                      <div class="input-group justify-content-center">-->
 <!--                        <div class="input-group-prepend">-->
 <!--                          <button @click="UpdateProperty(human.id, property.id, true)" class="btn btn-outline-secondary green" type="button">Yes</button>-->
@@ -172,6 +177,19 @@
                 </template>
                 </tbody>
               </table>
+            </td>
+          </tr>
+
+          <tr v-if="human.id in opened">
+            <td colspan="15">
+              <div class="input-group-append">
+                <div class="input-group display-flex-off">
+                  <button @click="changeWishes()" class="btn btn-warning btn-rounded" type="button">CHANGE WISHES</button>
+                </div>
+                <div class="input-group display-flex-off">
+                  <button @click="realizeWishes()" class="btn btn-info btn-rounded" type="button">REALIZE WISHES</button>
+                </div>
+              </div>
             </td>
           </tr>
         </template>
@@ -217,7 +235,76 @@ export default {
       tags: [],
       content: null,
       opened: {},
-      humans: [],
+      humans: [
+        {
+          id: 1, name: "Egor", surname: "Krivonosov",
+          locationName: 1,
+          is_real: true,
+          is_doctor: true,
+          sex: "MALE",
+          race: "GREEN MAN",
+          gender: "wtf",
+          temperament: "SANGUINE",
+          status: "ELITE",
+          birth_date: "17.10.2001",
+          death_date: null,
+          relationshipResponseDtoList: [{
+            name: "Petr",
+            surname: "Markov",
+            type: "FRIENDS",
+            startDate: "2019",
+            endDate: "ХЗ"
+          }],
+          humanEventResponseDtoList: [{
+            id: 1,
+            locationName: 1,
+            name: "Написание курсача",
+            description: "Может не надо???",
+            date: "01.09.2021"
+          },
+            {
+              id: 2,
+              locationName: 1,
+              name: "CS:GO",
+              description: "Сюрфит на рекордики",
+              date: "14.01.2022"
+            }],
+          opinionResponseDtoList: [{
+            id: 1,
+            name: "Дружелюбный",
+            description: "... 11 ..."
+          },
+            {
+              id: 2,
+              name: "Не дружелюбный",
+              description: "... 11 ..."
+            },
+            {
+              id: 3,
+              name: "Секси",
+              description: "... 11 ..."
+            },]
+        },
+        {
+          id: 2, name: "Petr", surname: "Markov",
+          locationName: 1,
+          is_real: true,
+          is_doctor: true,
+          sex: "MALE",
+          race: "PDF MAN",
+          gender: "wtf",
+          temperament: "SANGUINE",
+          status: "ELITE",
+          birth_date: "24.02.2002",
+          death_date: null,
+          relationshipResponseDtoList: [{
+            name: "Egor",
+            surname: "Krivonosov",
+            type: "FRIENDS",
+            startDate: "2019",
+            endDate: "ХЗ"
+          }],
+        }],
       pagination_cfg: {
         pages: 0,
         current_page: 0,
@@ -228,10 +315,6 @@ export default {
 
     };
   },
-  created() {
-    // TODO: Отправить запрос на бэк и получить число страниц по max_humans_on_page на странице
-    this.pagination_cfg.pages = Math.floor(this.humans.length / this.table_cfg.max_humans_on_page - 0.01)
-  },
   computed: {
     currentUser() {
       return this.$store.state.auth.user;
@@ -239,6 +322,7 @@ export default {
   },
   mounted() {
     if (!this.currentUser) this.$router.push('/login');
+
     DoctorService.getDoctorId().then(
         (response) => {
           localStorage.setItem("doctorId", response.data);
@@ -311,16 +395,13 @@ export default {
     formatDate: d => new Date (d).toLocaleString('ru-RU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
 
     toggle(id) {
-      // const index = this.opened.indexOf(id);
       if (id in this.opened) {
         delete this.opened[id]
-        // this.opened.splice(index, 1)
       } else {
         this.opened[id] = {relationships: false, events: false, property: false}
       }
     },
 
-    // TODO: Загрузка происходит с backend добавить
     nextTable(){
       this.pagination_cfg.current_page++
       DoctorService.getPage(this.pagination_cfg.current_page).then(
@@ -373,17 +454,29 @@ export default {
       );
     },
 
-    UpdateEvent(human_id, event_id, status){
-      if (this.humans[human_id - 1].event[event_id - 1].good !== status)
-        this.humans[human_id - 1].event[event_id - 1].good = status
-      // Добавить отправку на backend
+    changeWishes() {
+
     },
 
-    UpdateProperty(human_id, property_id, status){
-      if (this.humans[human_id - 1].property[property_id - 1].good !== status)
-        this.humans[human_id - 1].property[property_id - 1].good = status
-      // Добавить отправку на backend
+    realizeWishes() {
+
+    },
+
+    magic() {
+
     }
+
+    // UpdateEvent(human_id, event_id, status){
+    //   if (this.humans[human_id - 1].event[event_id - 1].good !== status)
+    //     this.humans[human_id - 1].event[event_id - 1].good = status
+    //   // Добавить отправку на backend
+    // },
+    //
+    // UpdateProperty(human_id, property_id, status){
+    //   if (this.humans[human_id - 1].property[property_id - 1].good !== status)
+    //     this.humans[human_id - 1].property[property_id - 1].good = status
+    //   // Добавить отправку на backend
+    // }
 
   },
 };
@@ -453,5 +546,18 @@ td > .table {
 
 .badge-danger {
   background: #e45c21;
+}
+
+.btn {
+  box-shadow: 0 2px 5px 0 rgb(0 0 0 / 20%), 0 2px 10px 0 rgb(0 0 0 / 10%);
+  font-weight: 500;
+}
+
+.display-flex-off {
+  display: inline;
+}
+
+.border-3 {
+  border-width:3px !important;
 }
 </style>
