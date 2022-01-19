@@ -132,7 +132,6 @@ export default {
       content: "",
       schema,
 
-      // TODO: Загрузка списков из БД (пока что тестовые значения)
       selectSex: null,
       selectTemperament: null,
       selectStatus: null,

@@ -184,10 +184,10 @@
             <td colspan="15">
               <div class="input-group-append">
                 <div class="input-group display-flex-off">
-                  <button @click="changeWishes()" class="btn btn-warning btn-rounded" type="button">CHANGE WISHES</button>
+                  <button @click="changeWishes(human.id)" class="btn btn-warning btn-rounded" type="button">CHANGE WISHES</button>
                 </div>
                 <div class="input-group display-flex-off">
-                  <button @click="realizeWishes()" class="btn btn-info btn-rounded" type="button">REALIZE WISHES</button>
+                  <button @click="realizeWishes(human.id)" class="btn btn-info btn-rounded" type="button">REALIZE WISHES</button>
                 </div>
               </div>
             </td>
@@ -235,76 +235,7 @@ export default {
       tags: [],
       content: null,
       opened: {},
-      humans: [
-        {
-          id: 1, name: "Egor", surname: "Krivonosov",
-          locationName: 1,
-          is_real: true,
-          is_doctor: true,
-          sex: "MALE",
-          race: "GREEN MAN",
-          gender: "wtf",
-          temperament: "SANGUINE",
-          status: "ELITE",
-          birth_date: "17.10.2001",
-          death_date: null,
-          relationshipResponseDtoList: [{
-            name: "Petr",
-            surname: "Markov",
-            type: "FRIENDS",
-            startDate: "2019",
-            endDate: "ХЗ"
-          }],
-          humanEventResponseDtoList: [{
-            id: 1,
-            locationName: 1,
-            name: "Написание курсача",
-            description: "Может не надо???",
-            date: "01.09.2021"
-          },
-            {
-              id: 2,
-              locationName: 1,
-              name: "CS:GO",
-              description: "Сюрфит на рекордики",
-              date: "14.01.2022"
-            }],
-          opinionResponseDtoList: [{
-            id: 1,
-            name: "Дружелюбный",
-            description: "... 11 ..."
-          },
-            {
-              id: 2,
-              name: "Не дружелюбный",
-              description: "... 11 ..."
-            },
-            {
-              id: 3,
-              name: "Секси",
-              description: "... 11 ..."
-            },]
-        },
-        {
-          id: 2, name: "Petr", surname: "Markov",
-          locationName: 1,
-          is_real: true,
-          is_doctor: true,
-          sex: "MALE",
-          race: "PDF MAN",
-          gender: "wtf",
-          temperament: "SANGUINE",
-          status: "ELITE",
-          birth_date: "24.02.2002",
-          death_date: null,
-          relationshipResponseDtoList: [{
-            name: "Egor",
-            surname: "Krivonosov",
-            type: "FRIENDS",
-            startDate: "2019",
-            endDate: "ХЗ"
-          }],
-        }],
+      humans: [],
       pagination_cfg: {
         pages: 0,
         current_page: 0,
@@ -454,15 +385,166 @@ export default {
       );
     },
 
-    changeWishes() {
+    changeWishes(humanId) {
+      DoctorService.changeWishes(humanId).then(
+          (response) => {
+            this.content = response.data
+
+            DoctorService.getPage(this.pagination_cfg.current_page).then(
+                (response) => {
+                  this.humans = response.data
+                  console.log(response.data)
+                },
+                (error) => {
+
+                  if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+                    EventBus.dispatch("logout");
+                  }
+
+                  if (error.response && error.response.status === 404) {
+                    this.$router.push("/register/doctor");
+                  }
+
+                  this.content =
+                      (error.response &&
+                          error.response.data &&
+                          error.response.data.message) ||
+                      error.message ||
+                      error.toString();
+                }
+            );
+
+          },
+          (error) => {
+            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+              EventBus.dispatch("logout");
+            }
+
+            this.content =
+                (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                error.message ||
+                error.toString();
+          }
+      )
 
     },
 
-    realizeWishes() {
+    realizeWishes(humanId) {
+
+      DoctorService.realizeWishes(humanId).then(
+          (response) => {
+            this.content = response.data
+
+            DoctorService.getPage(this.pagination_cfg.current_page).then(
+                (response) => {
+                  this.humans = response.data
+                  console.log(response.data)
+                },
+                (error) => {
+
+                  if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+                    EventBus.dispatch("logout");
+                  }
+
+                  if (error.response && error.response.status === 404) {
+                    this.$router.push("/register/doctor");
+                  }
+
+                  this.content =
+                      (error.response &&
+                          error.response.data &&
+                          error.response.data.message) ||
+                      error.message ||
+                      error.toString();
+                }
+            );
+
+          },
+          (error) => {
+            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+              EventBus.dispatch("logout");
+            }
+
+            this.content =
+                (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                error.message ||
+                error.toString();
+          }
+      )
 
     },
 
     magic() {
+
+      DoctorService.magic().then(
+          (response) => {
+            this.content = response.data
+            this.pagination_cfg.current_page = 0;
+            DoctorService.getNumberOfPages().then(
+                (response) => {
+                  this.pagination_cfg.pages = response.data;
+                },
+                (error) => {
+
+                  if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+                    EventBus.dispatch("logout");
+                  }
+
+                  if (error.response && error.response.status === 404) {
+                    this.$router.push("/register/doctor");
+                  }
+
+                  this.content =
+                      (error.response &&
+                          error.response.data &&
+                          error.response.data.message) ||
+                      error.message ||
+                      error.toString();
+                }
+            );
+
+            DoctorService.getPage(this.pagination_cfg.current_page).then(
+                (response) => {
+                  this.humans = response.data
+                  console.log(response.data)
+                },
+                (error) => {
+
+                  if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+                    EventBus.dispatch("logout");
+                  }
+
+                  if (error.response && error.response.status === 404) {
+                    this.$router.push("/register/doctor");
+                  }
+
+                  this.content =
+                      (error.response &&
+                          error.response.data &&
+                          error.response.data.message) ||
+                      error.message ||
+                      error.toString();
+                }
+            );
+
+          },
+          (error) => {
+            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+              EventBus.dispatch("logout");
+            }
+
+            this.content =
+                (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                error.message ||
+                error.toString();
+          }
+      )
 
     }
 

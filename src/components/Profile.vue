@@ -6,7 +6,7 @@
     <div class="alert alert-danger" role="alert" v-if="content != null" style="margin: 1em">
       {{ content }}
     </div>
-    <Form @submit="addUserInfo" :validation-schema="schema">
+    <Form @submit="changeDoctor" :validation-schema="schema">
       <div class="container rounded bg-white mt-5 mb-5">
         <div class="row">
           <div class="col-md-5 border-right">
@@ -97,7 +97,7 @@
                   <tbody>
                     <template v-for="event in events.rows" v-bind:key="event">
                       <tr :style="[event.isGood != null ? (event.isGood ? {background: '#4CAF50'} : {background: '#F44336'}) : {}]">
-                        <td>{{event.id}}</td>
+                        <td>{{event.eventId}}</td>
                         <td class="left-border">{{event.locationName}}</td>
                         <td class="left-border">{{event.name}}</td>
                         <td>{{event.description}}</td>
@@ -105,10 +105,10 @@
                         <td class="left-border flex-wrap-reverse">
                           <div class="input-group justify-content-center">
                             <div class="input-group-prepend">
-                              <button @click="UpdateEvent(human.id, event.id, true)" class="btn btn-outline-secondary btn-sm green" type="button">Yes</button>
+                              <button @click="UpdateEvent(event.eventId, true)" class="btn btn-outline-secondary btn-sm green" type="button">Yes</button>
                             </div>
                             <div class="input-group-append">
-                              <button @click="UpdateEvent(human.id, event.id, false)" class="btn btn-outline-secondary btn-sm red" type="button">No</button>
+                              <button @click="UpdateEvent(event.eventId, false)" class="btn btn-outline-secondary btn-sm red" type="button">No</button>
                             </div>
                           </div>
                         </td>
@@ -137,10 +137,10 @@
                       <td class="left-border flex-wrap-reverse" >
                         <div class="input-group justify-content-center">
                           <div class="input-group-prepend">
-                            <button @click="UpdateEvent(human.id, opinion.id, true)" class="btn btn-outline-secondary btn-sm green" type="button">Yes</button>
+                            <button @click="UpdateProperty(opinion.id, true)" class="btn btn-outline-secondary btn-sm green" type="button">Yes</button>
                           </div>
                           <div class="input-group-append">
-                            <button @click="UpdateEvent(human.id, opinion.id, false)" class="btn btn-outline-secondary btn-sm red" type="button">No</button>
+                            <button @click="UpdateProperty(opinion.id, false)" class="btn btn-outline-secondary btn-sm red" type="button">No</button>
                           </div>
                         </div>
                       </td>
@@ -248,6 +248,72 @@ export default {
   mounted() {
     if (!this.currentUser) this.$router.push('/login');
 
+    DoctorService.getDoctorId().then(
+        (response) => {
+          localStorage.setItem("doctorId", response.data);
+        },
+        (error) => {
+
+          if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+            EventBus.dispatch("logout");
+          }
+
+          if (error.response && error.response.status === 404) {
+            this.$router.push("/register/doctor");
+          }
+
+          this.content =
+              (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+              error.message ||
+              error.toString();
+        }
+    );
+    DoctorService.getEvents().then(
+        (response) => {
+          this.events.rows = response.data
+        },
+        (error) => {
+
+          if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+            EventBus.dispatch("logout");
+          }
+
+          if (error.response && error.response.status === 404) {
+            this.$router.push("/register/doctor");
+          }
+
+          this.content =
+              (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+              error.message ||
+              error.toString();
+        }
+    );
+    DoctorService.getProperties(localStorage.getItem("doctorId")).then(
+        (response) => {
+          this.property.rows = response.data
+        },
+        (error) => {
+
+          if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+            EventBus.dispatch("logout");
+          }
+
+          if (error.response && error.response.status === 404) {
+            this.$router.push("/register/doctor");
+          }
+
+          this.content =
+              (error.response &&
+                  error.response.data &&
+                  error.response.data.message) ||
+              error.message ||
+              error.toString();
+        }
+    );
     DoctorService.getEnumOfSex().then(
         (response) => {
           this.sex = response.data;
@@ -336,6 +402,104 @@ export default {
           this.info.gender == null &&
           this.info.temperament == null &&
           this.info.status == null ? 'Add doctor info' : 'Update doctor info';
+    },
+    changeDoctor(doctor) {
+      DoctorService.registerDoctor(doctor).then(
+          () => {
+            this.content = 'Doctor is updated'
+          },
+          (error) => {
+            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+              EventBus.dispatch("logout");
+            }
+
+            this.content =
+                (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                error.message ||
+                error.toString();
+          }
+      )
+    },
+    UpdateEvent(event, bool) {
+      DoctorService.updateEvent(event, bool).then(
+          () => {
+            DoctorService.getEvents().then(
+                (response) => {
+                  this.events.rows = response.data
+                },
+                (error) => {
+                  if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+                    EventBus.dispatch("logout");
+                  }
+
+                  if (error.response && error.response.status === 404) {
+                    this.$router.push("/register/doctor");
+                  }
+
+                  this.content =
+                      (error.response &&
+                          error.response.data &&
+                          error.response.data.message) ||
+                      error.message ||
+                      error.toString();
+                }
+            );
+          },
+          (error) => {
+            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+              EventBus.dispatch("logout");
+            }
+
+            this.content =
+                (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                error.message ||
+                error.toString();
+          }
+      )
+    },
+    UpdateProperty(property, bool) {
+      DoctorService.updateProperty(property, bool).then(
+          () => {
+            DoctorService.getProperties(localStorage.getItem("doctorId")).then(
+                (response) => {
+                  this.property.rows = response.data
+                },
+                (error) => {
+
+                  if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+                    EventBus.dispatch("logout");
+                  }
+
+                  if (error.response && error.response.status === 404) {
+                    this.$router.push("/register/doctor");
+                  }
+
+                  this.content =
+                      (error.response &&
+                          error.response.data &&
+                          error.response.data.message) ||
+                      error.message ||
+                      error.toString();
+                }
+            );
+          },
+          (error) => {
+            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+              EventBus.dispatch("logout");
+            }
+
+            this.content =
+                (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                error.message ||
+                error.toString();
+          }
+      )
     },
   },
 };

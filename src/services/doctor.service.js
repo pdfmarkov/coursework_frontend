@@ -14,6 +14,14 @@ class DoctorService {
         return api.get(`/main/get/page?number=${number}`);
     }
 
+    getEvents() {
+        return api.get(`/main/get/events`);
+    }
+
+    getProperties() {
+        return api.get(`/main/get/properties`);
+    }
+
     getNumberOfPages() {
         return api.get(`/main/get/number/page`);
     }
@@ -49,6 +57,54 @@ class DoctorService {
                 temperament,
                 status
             })
+    }
+
+    changeDoctor({name, surname, sex, race, gender, temperament, status}) {
+        return api
+            .post("/main/change/doctor",{
+                name,
+                surname,
+                sex,
+                race,
+                gender,
+                temperament,
+                status
+            })
+    }
+
+    updateEvent(eventId, isGood) {
+        return api
+            .post("/main/change/event",{
+                eventId,
+                isGood
+            })
+    }
+
+    updateProperty(propertyId, isGood) {
+        return api
+            .post("/main/change/property",{
+                propertyId,
+                isGood
+            })
+    }
+
+    changeWishes(id) {
+        return api
+            .post("/god/change/wish",{
+                id
+            })
+    }
+
+    realizeWishes(id) {
+        return api
+            .post("/god/realize/wish",{
+                id
+            })
+    }
+
+    magic() {
+        return api
+            .get("/god/dammit")
     }
 
 }
