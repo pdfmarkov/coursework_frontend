@@ -8,8 +8,8 @@
     </div>
     <Form @submit="addUserInfo" :validation-schema="schema">
       <div class="container rounded bg-white mt-5 mb-5">
-        <div class="row justify-content-center">
-          <div class="col-md-5">
+        <div class="row">
+          <div class="col-md-5 border-right">
             <div class="p-3 py-5">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="text-right">My Profile</h4>
@@ -78,6 +78,76 @@
                     <span v-text="checkInfo()"></span>
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-7">
+            <div class="p-3 py-5">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="text-right">Events</h4>
+              </div>
+              <div class="table-responsive"  style="margin: 1em">
+                <table class="table table-striped table-hover border overflow-auto" style="font-size: 0.9em">
+                  <thead class="text-center">
+                    <tr>
+                      <th v-for="head in events.header" v-bind:key="head" scope="col">{{head}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template v-for="event in events.rows" v-bind:key="event">
+                      <tr :style="[event.isGood != null ? (event.isGood ? {background: '#4CAF50'} : {background: '#F44336'}) : {}]">
+                        <td>{{event.id}}</td>
+                        <td class="left-border">{{event.locationName}}</td>
+                        <td class="left-border">{{event.name}}</td>
+                        <td>{{event.description}}</td>
+                        <td class="left-border">{{formatDate(event.date)}}</td>
+                        <td class="left-border flex-wrap-reverse">
+                          <div class="input-group justify-content-center">
+                            <div class="input-group-prepend">
+                              <button @click="UpdateEvent(human.id, event.id, true)" class="btn btn-outline-secondary btn-sm green" type="button">Yes</button>
+                            </div>
+                            <div class="input-group-append">
+                              <button @click="UpdateEvent(human.id, event.id, false)" class="btn btn-outline-secondary btn-sm red" type="button">No</button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="text-right">Property</h4>
+              </div>
+              <div class="table-responsive"  style="margin: 1em">
+                <table class="table table-striped table-hover border overflow-auto" style="font-size: 0.9em">
+                  <thead class="text-center">
+                  <tr>
+                    <th v-for="head in property.header" v-bind:key="head" scope="col">{{head}}</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <template v-for="opinion in property.rows" v-bind:key="opinion">
+                    <tr :style="[opinion.isGood != null ? (opinion.isGood ? {background: '#4CAF50'} : {background: '#F44336'}) : {}]">
+                      <td>{{opinion.id}}</td>
+                      <td class="left-border">{{opinion.name}}</td>
+                      <td>{{opinion.description}}</td>
+                      <td class="left-border flex-wrap-reverse" >
+                        <div class="input-group justify-content-center">
+                          <div class="input-group-prepend">
+                            <button @click="UpdateEvent(human.id, opinion.id, true)" class="btn btn-outline-secondary btn-sm green" type="button">Yes</button>
+                          </div>
+                          <div class="input-group-append">
+                            <button @click="UpdateEvent(human.id, opinion.id, false)" class="btn btn-outline-secondary btn-sm red" type="button">No</button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -156,7 +226,18 @@ export default {
       ],
       sex: [],
       temperaments: [],
-      status: []
+      status: [],
+
+      events: {
+        header: ["#", "Location", "Name", "Description", "Date", "Good?"],
+        rows: [{id: 1, locationName: "fdsfdsfsdХЗ", name: "Хfdsfdsfsdз2", description: "Что-fdsfdsfто там такое!", date: "17.01.2123"},
+          {id: 2, locationName: "ХЗ", name: "Хз2", description: "Что-то там такое!", date: "17.01.2123"}]
+      },
+
+      property: {
+        header: ["#", "Name", "Description", "Good?"],
+        rows: [{id: 1, name: "fdsfds", description: "safeswqfjewifwe"}]
+      }
     };
   },
   computed: {
@@ -263,5 +344,23 @@ export default {
 <style>
 .error-feedback {
   color: red;
+}
+
+.red {
+  background-color: #F44336;
+  color: white;
+}
+
+.green {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.input-group {
+  flex-wrap: nowrap;
+}
+
+.left-border {
+  border-left: 1px solid rgba(34,36,38,.1) !important;
 }
 </style>
